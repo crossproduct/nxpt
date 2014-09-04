@@ -11,8 +11,10 @@
 red=$( tput setaf 1 )
 green=$( tput setaf 2 )
 NC=$( tput setaf 0 )
+ESC_SEQ="\x1b["
+RCol="${ESC_SEQ}0m"
 
-echo "\nNexus Provisioning Tool\n"
+echo "${green}\nNexus Provisioning Tool\n${RCol}"
 # echo "Starting 'adb' ..."
 
 interface="wlan0" # the first argument should be the interface name
