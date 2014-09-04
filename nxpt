@@ -12,7 +12,7 @@ red=$( tput setaf 1 )
 green=$( tput setaf 2 )
 NC=$( tput setaf 0 )
 
-echo "\nAndroid Kiosk Provisioning Manager\n"
+echo "\nNexus Provisioning Tool\n"
 # echo "Starting 'adb' ..."
 
 interface="wlan0" # the first argument should be the interface name
