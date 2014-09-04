@@ -1,0 +1,300 @@
+#!/bin/sh
+
+#
+# This Bash shell script scans for android deviecs via adb and resolves
+# the S/N to the MAC address. These MAC addresses are then pushed
+# back tot he database.
+#
+# Chris Ross <chris.ross@controlgroup.com>
+
+# OUTPUT-COLORING
+red=$( tput setaf 1 )
+green=$( tput setaf 2 )
+NC=$( tput setaf 0 )
+
+echo "\nAndroid Kiosk Provisioning Manager\n"
+# echo "Starting 'adb' ..."
+
+interface="wlan0" # the first argument should be the interface name
+
+fastboot_scan() {
+	fastboot_devices=$(fastboot devices | awk 'BEGIN{
+		FS="\t"
+		OFS=" ";
+	}
+	{
+		print $1
+	}
+	END{
+
+	}')
+	
+	echo $fastboot_devices
+}
+
+adb_scan() {
+	local adb_devices=$(adb devices | awk 'BEGIN{
+		FS="\t";
+		OFS=" ";
+	}
+	{
+		if (NR != 1) {
+			print $1
+		}
+	}
+	END{
+		
+	}')
+
+	# return the device list string
+	echo $adb_devices
+}
+	
+adb_map() {
+	if [ $# -eq 0 ]
+		then
+			return
+	fi
+
+	local devices_arr=(${@})
+
+	# loop this device list and for each eval the adb shell command
+	for i in "${devices_arr[@]}"
+	do
+		:
+		mac_address=$(adb -s $i shell netcfg | awk 'BEGIN{
+			FS=" ";
+			OFS=" ";
+		}
+		{
+			if($1 == "'$interface'") print $5
+		}
+		END{
+
+		}')
+		echo $i,$mac_address
+	done
+}
+
+unlock_bootloader() {
+	if [ $# -eq 0 ]
+		then
+			return
+	fi
+
+	local devices_arr=(${@})
+
+	for i in "${devices_arr[@]}"
+	do
+		:
+		# echo $i
+		# issue the fastboot command
+		local output=$(fastboot -s $i oem unlock | awk 'BEGIN{
+			FS="\t";
+			OFS=" ";
+		}
+		{
+			print $0
+		}
+		END{
+	
+		}')
+	done
+}
+
+lock_bootloader() {
+        if [ $# -eq 0 ]
+                then
+                        return
+        fi
+
+        local devices_arr=(${@})
+
+        for i in "${devices_arr[@]}"
+        do
+                :
+                # echo $i
+                # issue the fastboot command
+                local output=$(fastboot -s $i oem lock | awk 'BEGIN{
+                        FS="\t";
+                        OFS=" ";
+                }
+                {
+                        print $0
+                }
+                END{
+
+                }')
+        done
+}
+
+# flash system with stock image
+flash_image_sequence() {
+        if [ $# -lt 3 ]
+                then
+                        return -1
+        fi
+
+        local device=$1
+        local dir=$2
+	local ver=$3
+
+        fastboot -s $device flash bootloader "${dir}/bootloader-flo-flo-04.02.img"
+        fastboot -s $device reboot-bootloader
+        sleep 5
+	fastboot -s $device flash boot "${dir}/modified/boot-modified-001.img"
+	sleep 1
+	fastboot -s $device flash recovery "${dir}/image-${dir}/recovery.img"
+	sleep 1
+	fastboot -s $device flash userdata "${dir}/image-${dir}/userdata.img"
+	sleep 1
+	fastboot -s $device flash cache "${dir}/image-${dir}/cache.img"
+	sleep 1
+	fastboot -s $device flash system "${dir}/modified/system-modified-${ver}.img"
+	sleep 5
+	fastboot reboot-bootloader
+}
+
+# flash system with stock image via an update.zip package 
+flash_stock() {
+	if [ $# -lt 1 ]
+		then
+			return -1
+	elif [ $# -eq 1 ]
+		then
+			local dir="razor-ktu84p"
+			local device=$1
+			# local filepath="razor-ktu84p/image-razor-ktu84p.zip"
+			fastboot -s $device flash bootloader "${dir}/bootloader-flo-flo-04.02.img"
+        		fastboot -s $device reboot-bootloader
+        		sleep 5
+        		fastboot -s $device flash boot "${dir}/image-${dir}/boot.img"
+        		sleep 1
+        		fastboot -s $device flash recovery "${dir}/image-${dir}/recovery.img"
+        		sleep 1
+        		fastboot -s $device flash userdata "${dir}/image-${dir}/userdata.img"
+        		sleep 1
+        		fastboot -s $device flash cache "${dir}/image-${dir}/cache.img"
+        		sleep 1
+        		fastboot -s $device flash system "${dir}/image-${dir}/system.img"
+        		sleep 5
+			fastboot -s $device oem lock
+			sleep 1
+			fastboot -s $device oem off-mode-charge 1
+	elif [$# -eq 2 ]
+		then
+			local filepath=$2
+			local device=$1
+			fastboot -w -s $device update "${filepath}"
+	fi
+
+}
+
+# launch the registered launcher application and activity
+launch_home() {
+	if [ $# -eq 0 ]
+		then
+			return
+	fi
+	
+	local devices_arr=(${@})
+	
+	for i in "${devices_arr[@]}"
+	do
+		:
+		echo $i 
+		adb -s $i shell am start -c android.intent.category.HOME -a android.intent.action.MAIN &
+	done
+}
+
+loop() {
+	# declare -a adb_devices_arr=($(adb_scan))
+	declare -a fastboot_devices_arr=($(fastboot_scan))	
+	# loop
+}
+
+# start the unlock bootloader sequence
+sequence_1() {
+	if [ $# -eq 0 ]
+		then
+			local path="razor-ktu84p"
+			local ver="003"
+		else
+			local path=$1
+			local ver=$2
+	fi
+
+	# fastboot_scan
+        declare -a fastboot_devices_arr=($(fastboot_scan))
+
+	# flash in sequence
+	for i in "${fastboot_devices_arr[@]}"
+	do
+		:
+		(unlock_bootloader $i && sleep 5 && echo "set off-mode-charge : 0 for ${i}" && fastboot oem off-mode-charge 0 && flash_image_sequence $i $path $ver) 
+	done
+} 
+
+# evaluate the given command
+command=$1
+
+if [ "$command" = "provision" ] && [ $# -eq 3 ]
+	then
+		sequence_1 $2 $3 # sequence_1 razor-ktu84p 003
+elif [ "$command" = "gohome" ]
+	then
+		declare -a adb_devices_arr=($(adb_scan))
+		launch_home ${adb_devices_arr[@]}
+elif [ "$command" = "oemunlock" ]
+	then
+		# fastboot_scan
+	        declare -a fastboot_devices_arr=($(fastboot_scan))
+	
+        	# unlock in parallel
+        	for i in "${fastboot_devices_arr[@]}"
+        	do 
+        	        :
+        	        unlock_bootloader $i &
+        	done
+elif [ "$command" = "oemlock" ]
+        then
+                # fastboot_scan
+                declare -a fastboot_devices_arr=($(fastboot_scan))
+
+                # unlock in parallel
+                for i in "${fastboot_devices_arr[@]}"
+                do
+                        :
+                        lock_bootloader $i &
+                done
+elif [ "$command" = "restore" ]
+	then
+		# fastboot_scan
+		declare -a fastboot_devices_arr=($(fastboot_scan))
+
+		# restore
+		for i in "${fastboot_devices_arr[@]}"
+		do
+			:
+			flash_stock $i
+			
+		done
+else
+	echo "usage: nxpt <command>\n
+	commands:
+	\tgohome						Direct all connected clients to launch
+								their default / configured home launcher
+								MAIN activity.
+
+	\toemunlock					Unlock the bootloader of all connected devices
+								that have been launched into the bootloader mode.
+
+	\toemlock						Lock the bootloader of all connected devices
+								that have been launched into the bootloader mode.
+
+	\tprovision [<directory>] [<version>]		flash all connected devices with fastboot
+
+	\trestore						Restore the device back to factory status (4.4.4 default)"
+fi
+
+
