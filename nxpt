@@ -310,6 +310,43 @@ elif [ "$command" = "aw-install" ] && [ $# -eq 2 ]
 			adb shell am start -n com.airwatch.androidagent/com.airwatch.agent.ui.activity.SplashActivity
 			
 		done
+
+elif [ "$command" = "configure-wifi" ] && [ $# -eq 3 ]
+	then
+		# adb_scan
+		declare -a adb_devices_arr=($(adb_scan))
+
+		# configure wifi
+		for i in "${adb_devices_arr[@]}"
+		do
+			:
+			# open wifi
+			adb shell am start -a android.intent.action.MAIN -n com.android.settings/.wifi.WifiSettings
+
+			# give it a second to register
+			sleep 1
+
+			# turn on wifi (should already be on, uncomment to fix. should find a way to detect this)
+			# adb shell input keyevent 20 && adb shell input keyevent 19 && adb shell input keyevent 19 && adb shell input keyevent 23
+
+			# select new network
+			adb shell input keyevent 20 && adb shell input keyevent 19 && adb shell input keyevent 19 && adb shell input keyevent 22 && adb shell input keyevent 22 && adb shell input keyevent 23
+
+			# enter network name
+			adb shell input keyboard text $2
+
+			# set security type to WPA/WPA2 psk
+			adb shell input keyevent 61 && adb shell input keyevent 23 && adb shell input keyevent 20 && adb shell input keyevent 20 && adb shell input keyevent 23
+
+			# set password
+			adb shell input keyevent 61 && adb shell input keyboard text $3 && adb shell input keyevent 66
+			
+			# save
+			adb shell input keyevent 61 && adb shell input keyevent 61 && adb shell input keyevent 61 && adb shell input keyevent 23
+
+			# back out
+			adb shell input keyevent 4
+		done
 else
 	echo "usage: nxpt <command>\n
 	commands:
@@ -327,7 +364,9 @@ else
 
 	\trestore						Restore the device back to factory status (4.4.4 default)
 
-	\tinstall <path to apk>			Installs the specified apk to all devices.
+	\tconfigure-wifi <ssid> <password>		Add a network, (currently defaults to WPA/WPA2 PSK)
+
+	\tinstall <path to apk>				Installs the specified apk to all devices.
 
 	\taw-install <path to apk>			Installs the specified Airwatch APK and attempts to launch the main splash screen."
 fi
