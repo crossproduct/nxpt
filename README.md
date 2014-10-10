@@ -11,6 +11,7 @@ oemunlock	| Unlock the bootloader of all connected devices that have been launch
 oemlock | Lock the bootloader of all connected devices that have been launched into the bootloader mode.
 provision [\<directory\>] [\<version\>] | flash all connected devices with fastboot
 restore | Restore the device back to factory status (4.4.4 default)
+aw-install \<path to apk\> | Installs the Airwatch APK and launches the main splash screen.
 		
 ##License
 The MIT License (MIT)
