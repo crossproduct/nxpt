@@ -281,6 +281,19 @@ elif [ "$command" = "restore" ]
 			flash_stock $i
 			
 		done
+elif [ "$command" = "install" ] && [ $# -eq 2 ]
+	then
+		# adb_scan
+		declare -a adb_devices_arr=($(adb_scan))
+
+		# restore
+		for i in "${adb_devices_arr[@]}"
+		do
+			:
+			# install
+			adb -s -$i install $2
+			
+		done
 elif [ "$command" = "aw-install" ] && [ $# -eq 2 ]
 	then
 		# adb_scan
@@ -314,7 +327,9 @@ else
 
 	\trestore						Restore the device back to factory status (4.4.4 default)
 
-	\taw-install <path to apk>			Installs the Airwatch APK and launches the main splash screen."
+	\tinstall <path to apk>			Installs the specified apk to all devices.
+
+	\taw-install <path to apk>			Installs the specified Airwatch APK and attempts to launch the main splash screen."
 fi
 
 
