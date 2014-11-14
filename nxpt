@@ -291,7 +291,7 @@ elif [ "$command" = "install" ] && [ $# -eq 2 ]
 		do
 			:
 			# install
-			adb -s -$i install $2
+			adb -s $i install -r $2
 			
 		done
 elif [ "$command" = "aw-install" ] && [ $# -eq 2 ]
