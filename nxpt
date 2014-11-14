@@ -144,7 +144,7 @@ flash_image_sequence() {
         fastboot -s $device flash bootloader "${dir}/bootloader-flo-flo-04.02.img"
         fastboot -s $device reboot-bootloader
         sleep 5
-	fastboot -s $device flash boot "${dir}/modified/boot-modified-001.img"
+	fastboot -s $device flash boot "${dir}/modified/boot-modified-003.img"
 	sleep 1
 	fastboot -s $device flash recovery "${dir}/image-${dir}/recovery.img"
 	sleep 1
