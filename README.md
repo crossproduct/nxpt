@@ -14,6 +14,9 @@ restore | Restore the device back to factory status (4.4.4 default)
 configure-wifi \<ssid\> \<password\> | Add a network, (currently defaults to WPA/WPA2 PSK)
 install \<path to apk\> | Installs the specified apk to all devices.
 aw-install \<path to apk\> | Installs the Airwatch APK and launches the main splash screen.
+launcher-install \<path to apk\> | Installs the specified Custom Launcher APK and configures it as the default.
+wifi-toggle-install \<path to apk\> | Installs the specified Wifi Toggle Service APK, launches it to start it, and then toggles back to the launcher.
+post-config | Perform post configuration settings.
 		
 ##License
 The MIT License (MIT)

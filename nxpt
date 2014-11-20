@@ -314,6 +314,104 @@ elif [ "$command" = "aw-install" ] && [ $# -eq 2 ]
 			
 		done
 
+elif [ "$command" = "launcher-install" ] && [ $# -eq 2 ]
+	then
+		# adb_scan
+		declare -a adb_devices_arr=($(adb_scan))
+
+		# restore
+		for i in "${adb_devices_arr[@]}"
+		do
+			:
+			# install
+			adb -s $i install $2
+
+			# sleep
+			sleep 1
+
+			# wake screen
+			adb -s $i shell input keyevent 26
+
+			# unlock screen
+			adb -s $i shell input keyevent 82
+
+			# launch the app
+			adb -s $i shell am start -n org.crossproduct.kioskhomescreen/.HomeActivity
+			
+			# call home launcher intent
+			adb -s $i shell am start -c android.intent.category.HOME -a android.intent.action.MAIN
+
+			# automate selected EMKI Home as default
+			adb -s $i shell input keyevent 19 && adb -s $i shell input keyevent 23 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 21 && adb -s $i shell input keyevent 23
+		done
+
+elif [ "$command" = "wifi-toggle-install" ] && [ $# -eq 2 ]
+	then
+		# adb_scan
+		declare -a adb_devices_arr=($(adb_scan))
+
+		# restore
+		for i in "${adb_devices_arr[@]}"
+		do
+			:
+			# install
+			adb -s $i install $2
+
+			# sleep
+			sleep 1
+
+			# launch the app
+			adb -s $i shell am start -n com.controlgroup.wifitoggleservice/com.controlgroup.wifitoggleservice.ToggleActivity
+			
+			# call home launcher intent so we don't see this wifi toggle activity since this version has UI
+			adb -s $i shell am start -c android.intent.category.HOME -a android.intent.action.MAIN
+		done
+
+elif [ "$command" = "post-config" ]
+	then
+		# adb_scan
+		declare -a adb_devices_arr=($(adb_scan))
+
+		# restore
+		for i in "${adb_devices_arr[@]}"
+		do
+			:
+			####### REVISIT THIS IN THE ORDER OF STEPS #########
+			# wake screen
+			#adb -s $i shell input keyevent 26
+
+			# unlock screen
+			#adb -s $i shell input keyevent 82
+			######### END REVISIT ##############
+			
+			# launch the security settings
+			adb -s $i shell am start -n com.android.settings/.SecuritySettings
+			
+			sleep 1
+			
+			# set screen lock to none
+			adb -s $i shell input keyevent 23 && adb -s $i shell input keyevent 23 && adb -s $i shell input keyevent 23
+
+			# allow install from unknown sources
+			adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 23 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 23
+		
+			# configure display sleep timeout
+			adb -s $i shell am start -n com.android.settings/.DisplaySettings
+
+			sleep 1
+
+			# set display sleep timeout to 30 minutes
+			adb -s $i shell input keyevent 19 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 23 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 23
+		
+			# Turn off WiFi Optimization
+			#adb -s $i shell am start -n com.android.settings/.wifi.WifiSettings
+
+			sleep 1
+
+			# nav to advanced options and toggle Wi-Fi Optimization
+			adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 23 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 23 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 23
+		done
+
 elif [ "$command" = "configure-wifi" ] && [ $# -eq 3 ]
 	then
 		# adb_scan
@@ -371,7 +469,14 @@ else
 
 	\tinstall <path to apk>				Installs the specified apk to all devices.
 
-	\taw-install <path to apk>			Installs the specified Airwatch APK and attempts to launch the main splash screen."
+	\taw-install <path to apk>			Installs the specified Airwatch APK and attempts to launch the main splash screen.
+
+	\tlauncher-install <path to apk>			Installs the specified Custom Launcher APK and configures it as the default.
+
+	\twifi-toggle-install <path to apk>		Installs the specified Wifi Toggle Service APK, launches it to start it,
+								and then toggles back to the launcher
+
+	\tpost-config					Perform post configuration settings."
 fi
 
 
