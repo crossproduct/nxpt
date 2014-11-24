@@ -390,10 +390,15 @@ elif [ "$command" = "post-config" ]
 			sleep 1
 			
 			# set screen lock to none
-			adb -s $i shell input keyevent 23 && adb -s $i shell input keyevent 23 && adb -s $i shell input keyevent 23
+			adb -s $i shell input keyevent 19;
+			adb -s $i shell input keyevent 19;
+			adb -s $i shell input keyevent 20;
+			adb -s $i shell input keyevent 66;
+			sleep 1;
+			adb -s $i shell input keyevent 66
 
 			# allow install from unknown sources
-			adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 23 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 23
+			adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 66 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 66
 		
 			# configure display sleep timeout
 			adb -s $i shell am start -n com.android.settings/.DisplaySettings
@@ -401,15 +406,18 @@ elif [ "$command" = "post-config" ]
 			sleep 1
 
 			# set display sleep timeout to 30 minutes
-			adb -s $i shell input keyevent 19 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 23 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 23
+			adb -s $i shell input keyevent 19 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 66 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 66
 		
 			# Turn off WiFi Optimization
-			#adb -s $i shell am start -n com.android.settings/.wifi.WifiSettings
+			adb -s $i shell am start -n com.android.settings/.wifi.WifiSettings
 
 			sleep 1
 
 			# nav to advanced options and toggle Wi-Fi Optimization
-			adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 23 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 23 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 23
+			adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 66 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 66 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 66
+
+			# reset to registered home screen launcher
+			adb -s $i shell am start -c android.intent.category.HOME -a android.intent.action.MAIN
 		done
 
 elif [ "$command" = "configure-wifi" ] && [ $# -eq 3 ]
