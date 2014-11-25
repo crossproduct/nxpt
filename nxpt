@@ -390,7 +390,7 @@ elif [ "$command" = "post-config" ]
 			sleep 1
 			
 			# set screen lock to none
-			adb -s $i shell input keyevent 19 && adb -s $i shell input keyevent 19 && adb -s $i shell input keyevent 19
+			adb -s $i shell input keyevent 19 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22
 			adb -s $i shell input keyevent 20
 			adb -s $i shell input keyevent 66
 			sleep 1
