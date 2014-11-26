@@ -435,7 +435,7 @@ elif [ "$command" = "configure-wifi" ] && [ $# -eq 3 ]
 			sleep 1
 
 			# turn on wifi (should already be on, comment or uncomment to fix. should find a way to detect this)
-			adb -s $i shell input keyevent 20 && adb shell input keyevent 22 && adb shell input keyevent 22 && adb shell input keyevent 22 && adb shell input keyevent 22 && adb shell input keyevent 21 && adb shell input keyevent 21 && adb shell input keyevent 21 && adb shell input keyevent 66
+			adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 21 && adb -s $i shell input keyevent 21 && adb -s $i shell input keyevent 21 && adb -s $i shell input keyevent 66
 
 			# select new network
 			adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 66
