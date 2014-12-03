@@ -294,6 +294,18 @@ elif [ "$command" = "install" ] && [ $# -eq 2 ]
 			adb -s $i install -r $2
 			
 		done
+elif [ "$command" = "reboot" ]
+	then
+		# adb_scan
+		declare -a adb_devices_arr=($(adb_scan))
+
+		# reboot
+		for i in "${adb_devices_arr[@]}"
+		do
+			:
+			# install
+			adb -s $i reboot
+		done		
 elif [ "$command" = "aw-install" ] && [ $# -eq 2 ]
 	then
 		# adb_scan
