@@ -278,8 +278,7 @@ elif [ "$command" = "restore" ]
 		for i in "${fastboot_devices_arr[@]}"
 		do
 			:
-			flash_stock $i
-			
+			flash_stock $i	
 		done
 elif [ "$command" = "install" ] && [ $# -eq 2 ]
 	then
@@ -292,7 +291,17 @@ elif [ "$command" = "install" ] && [ $# -eq 2 ]
 			:
 			# install
 			adb -s $i install -r $2
-			
+		done
+elif [ "$command" = "uninstall" ] && [ $# -eq 2 ]
+	then
+		# adb_scan
+		declare -a adb_devices_arr=($(adb_scan))
+
+		# uninstall
+		for i in "${adb_devices_arr[@]}"
+		do
+			:
+			adb -s $i uninstall $2
 		done
 elif [ "$command" = "reboot" ]
 	then
@@ -303,7 +312,6 @@ elif [ "$command" = "reboot" ]
 		for i in "${adb_devices_arr[@]}"
 		do
 			:
-			# install
 			adb -s $i reboot
 		done		
 elif [ "$command" = "aw-install" ] && [ $# -eq 2 ]
@@ -483,6 +491,8 @@ else
 	\tprovision [<directory>] [<version>]		flash all connected devices with fastboot
 
 	\trestore						Restore the device back to factory status (4.4.4 default)
+
+	\trboot	  					Reboot all connected tablets
 
 	\tconfigure-wifi <ssid> <password>		Add a network, (currently defaults to WPA/WPA2 PSK)
 
