@@ -514,11 +514,7 @@ else
 
 	\trestore						Restore the device back to factory status (4.4.4 default)
 
-	\tadb [<command>]				Use any command available in adb to all tablets
-
-	\tfastboot [<command>]			Use any command available in fastboot to all tablets
-
-	\treboot	  					Reboot all connected tablets
+	\trboot	  					Reboot all connected tablets
 
 	\tconfigure-wifi <ssid> <password>		Add a network, (currently defaults to WPA/WPA2 PSK)
 
