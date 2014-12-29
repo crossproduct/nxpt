@@ -6,7 +6,6 @@
 # back tot he database.
 #
 # Chris Ross <chris.ross@controlgroup.com>
-# Danny Mendoza <danny.mendoza@controlgroup.com>
 
 # OUTPUT-COLORING
 red=$( tput setaf 1 )
@@ -280,7 +279,6 @@ elif [ "$command" = "restore" ]
 		do
 			:
 			flash_stock $i	
-
 		done
 elif [ "$command" = "install" ] && [ $# -eq 2 ]
 	then
@@ -293,6 +291,17 @@ elif [ "$command" = "install" ] && [ $# -eq 2 ]
 			:
 			# install
 			adb -s $i install -r $2
+		done
+elif [ "$command" = "uninstall" ] && [ $# -eq 2 ]
+	then
+		# adb_scan
+		declare -a adb_devices_arr=($(adb_scan))
+
+		# uninstall
+		for i in "${adb_devices_arr[@]}"
+		do
+			:
+			adb -s $i uninstall $2
 		done
 elif [ "$command" = "adb" ] && [ $# -eq 2 ]
 	then
@@ -445,11 +454,8 @@ elif [ "$command" = "post-config" ]
 
 			sleep 1
 
-			# nav to advanced options and toggle Wi-Fi Optimization and Network Notification
-			adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 66 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 66 && adb -s $i shell input keyevent 66 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 66
-			
-			# nav to wi-fi frequency and set it to 5 Ghz only
-			adb -s $i shell input keyevent 19 && adb -s $i shell input keyevent 19 && adb -s $i shell input keyevent 66 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 66
+			# nav to advanced options and toggle Wi-Fi Optimization
+			adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 22 && adb -s $i shell input keyevent 66 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 66 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 20 && adb -s $i shell input keyevent 66
 
 			# reset to registered home screen launcher
 			adb -s $i shell am start -c android.intent.category.HOME -a android.intent.action.MAIN
@@ -508,9 +514,7 @@ else
 
 	\trestore						Restore the device back to factory status (4.4.4 default)
 
-	\tadb [<command>]				Use any command available in adb to all tablets
-
-	\tfastboot [<command>]			Use any command available in fastboot to all tablets
+	\trboot	  					Reboot all connected tablets
 
 	\tconfigure-wifi <ssid> <password>		Add a network, (currently defaults to WPA/WPA2 PSK)
 
